@@ -1,0 +1,377 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Daily Work Report Submission",
+        "formDescription": "Please submit your end-of-day work updates. This helps the team lead track progress, resolve blockers, and plan upcoming tasks effectively.\n",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "name",
+              "placeholder": "Enter your full name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "email",
+              "placeholder": "your official email id",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Status",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Complete"
+                  },
+                  {
+                    "option": "Blocked"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7d8e0f15-535c-433a-b0ab-9125b86d2901",
+      "name": "On form submission",
+      "webhookId": "68028686-3310-4e59-8d23-fcdb556af09b"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "17PV-knEKXpLlnAGYdaOogMSwJe1drnWMeBFBaZ4_ojc",
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17PV-knEKXpLlnAGYdaOogMSwJe1drnWMeBFBaZ4_ojc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17PV-knEKXpLlnAGYdaOogMSwJe1drnWMeBFBaZ4_ojc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "Status": "={{ $json.Status }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "1a514653-8a43-4a09-9644-9cf38b07db02",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ousGEIUE4lwnBNwt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant helping a team lead summarize daily completed work reports submitted by team members.\n\nThe input data is a list of objects. Each object includes:\n- fullName\n- priority (High, Medium, Low)\n- completedTasks\n\n🎯 Your task is to:\n1. Filter entries where `completedTasks` is NOT empty.\n2. Format the final output like this:\n\nHello Sir,  \nHere is the list of completed tasks for today:\n\n✅ Completed Tasks:\n- [fullName] ([priority]): [completedTasks]\n\nIf no one completed any tasks, respond with:\nHello Sir,  \nThere were no completed tasks reported today.\n\nDo not add anything else. Keep the message formal and structured.\n\nif status is blocked then generate the message hello sir here the blocked status report {{ $json.Status }} {{ $json.Name }}\n\nhere is the name list you want to show name in output{{ $json.Name }}\nNow generate the message using the following data:\n{{ $json.Status }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        860,
+        60
+      ],
+      "id": "adb170c4-f65b-4421-bf06-5d56a5ee3ffe",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        940,
+        280
+      ],
+      "id": "8d8f73c1-ec90-4e08-9a6a-d37627fde831",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kGFgPeDMoSb9rzmg",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        840,
+        460
+      ],
+      "id": "ce914a32-3fcf-44bd-a525-761381887719",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kGFgPeDMoSb9rzmg",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "jeenathomasshl@gmail.com",
+        "subject": "Blocked List",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        -40
+      ],
+      "id": "37e211ae-35ec-4836-99a0-4ab3f570fdf9",
+      "name": "Gmail1",
+      "webhookId": "f3e63487-85df-42b2-9850-f9da13160709",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zpcrdQr3LsQ7KbUq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "03aa29a6-c08d-4982-a389-593c6a569187",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Complete",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        -60
+      ],
+      "id": "a3dffb49-fb47-42fb-beff-8fad29c7b06b",
+      "name": "Complete"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant helping a team lead summarize daily team reports. The report status type can be either \"completed\" or \"blocked\".\n\nThe input is a list of objects. Each object contains:\n- fullName\n- priority (High, Medium, Low)\n- statusType (\"completed\" or \"blocked\")\n- statusDetails (This contains either completedTasks or blockers based on the type)\n\n🎯 Your task is to:\n\n1. Filter entries where `statusDetails` is NOT empty.\n2. Based on the `statusType`, generate the message accordingly.\n\nIf the statusType is **\"completed\"**, use this format:\n\nHello Sir,  \nHere is the list of completed tasks for today:\n\n✅ Completed Tasks:\n- [fullName] ([priority]): [statusDetails]\n\nIf the statusType is **\"blocked\"**, use this format:\n\nHello Sir,  \nHere is the list of blockers reported today:\n\n⚠️ Blockers:\n- [fullName] ([priority]): [statusDetails]\n\nIf the list is empty or all entries have empty `statusDetails`, return this:\n\nHello Sir,  \nThere were no [statusType] reports submitted today.\n\n🛑 Do not add any unnecessary explanation. Keep the message simple, formal, and professional.\n\nNow generate the message using the following data:  \n{{ $json.Status }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -320
+      ],
+      "id": "616118b8-cba8-49a5-bced-859a6ca5bbfe",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sendTo": "=jeenathomasshl@gmail.com",
+        "subject": "Completed list",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1240,
+        -320
+      ],
+      "id": "2504a002-9d9f-4c62-9323-9083d3070d93",
+      "name": "Gmail",
+      "webhookId": "40519cf4-5efe-40e4-975c-7f4fe2f3c162",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NPWfBWvxhXJgX9yw",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6cf863a6-2ce1-4d9e-ae5d-e687605e33fe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf9a6b3d79db88f53a8299c223fdd6d8b42930c992ced489a2093f53cf0f4f24"
+  },
+  "id": "rtCPJtMv0psyKUlh",
+  "tags": []
+}
